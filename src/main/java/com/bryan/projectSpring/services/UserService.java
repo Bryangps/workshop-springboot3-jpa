@@ -2,9 +2,11 @@ package com.bryan.projectSpring.services;
 
 import com.bryan.projectSpring.entities.User;
 import com.bryan.projectSpring.repositories.UserRepository;
-import com.bryan.projectSpring.resources.exceptions.ResourceExceptionHandler;
+import com.bryan.projectSpring.services.exceptions.DatabaseException;
 import com.bryan.projectSpring.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,7 +32,16 @@ public class UserService {
     }
 
     public void delete(Long id){
-        repository.deleteById(id);
+        try {
+         repository.deleteById(id);
+        }
+        catch (EmptyResultDataAccessException e){
+            throw new ResourceNotFoundException(e.getMessage());
+        }
+        catch (DataIntegrityViolationException e){
+            throw new DatabaseException(e.getMessage());
+        }
+
     }
 
     public User update(Long id, User obj){
